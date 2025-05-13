@@ -1,0 +1,32 @@
+version: "3"
+services:
+  haproxy:
+    image: haproxy:latest
+    container_name: haproxy
+    ports:
+      - "4533:4533"
+    volumes:
+      - /etc/navidrome/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - /etc/navidrome/haproxy/certs:/usr/local/etc/haproxy/certs:ro
+    networks:
+      - internal_network
+
+
+  navidrome:
+    image: deluan/navidrome:latest
+    restart: unless-stopped
+    volumes:
+    environment:
+      ND_LOGLEVEL: info
+      ND_SESSIONTIMEOUT: 24h
+      ND_SCANSCHEDULE: 1h
+    volumes:
+      - "/etc/navidrome/data:/data"
+      - "/etc/navidrome/music:/music:ro"
+    networks:
+      - internal_network
+
+
+networks:
+  internal_network:
+    driver: bridge
